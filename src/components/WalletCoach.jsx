@@ -2,7 +2,7 @@ import { useState, useRef, useEffect } from 'react';
 import { motion } from 'framer-motion';
 import { MessageSquare, Send, Sparkles } from 'lucide-react';
 
-export default function WalletCoach({ data, monthlyIncome, dolarBlueRate }) {
+export default function WalletCoach({ data, monthlyIncome, incomeCurrency = 'ARS', dolarBlueRate, euroRate }) {
   const [messages, setMessages] = useState([]);
   const [inputVal, setInputVal] = useState('');
   const [isLoading, setIsLoading] = useState(false);
@@ -53,10 +53,12 @@ export default function WalletCoach({ data, monthlyIncome, dolarBlueRate }) {
 
     const contextData = {
       monthlyIncome,
+      incomeCurrency,
       totalExp,
       balance,
       categoriesStr,
-      dolarBlueRate
+      dolarBlueRate,
+      euroRate
     };
 
     try {

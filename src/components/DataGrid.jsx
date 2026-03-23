@@ -27,7 +27,29 @@ export default function DataGrid({ data, setData, selectedMonth, customCategorie
   const allCategories = [...CATEGORIES, ...customCategories];
 
   const handleCellChange = (id, field, value) => {
-    setData(data.map(row => row.id === id ? { ...row, [field]: value } : row));
+    setData(data.map(row => {
+      if (row.id === id) {
+        const newRow = { ...row, [field]: value };
+        if (field === 'currency' || field === 'originalAmount') {
+           const amountToConvert = field === 'originalAmount' ? value : (row.originalAmount || row.amount);
+           const cur = field === 'currency' ? value : (row.currency || 'ARS');
+           let finalARS = amountToConvert;
+           if (cur === 'USD' && dolarBlueRate) finalARS = Number(amountToConvert) * dolarBlueRate;
+           else if (cur === 'EUR' && euroRate) finalARS = Number(amountToConvert) * euroRate;
+           newRow.amount = finalARS;
+        } else if (field === 'amount') {
+           // Fallback for user entering data in old rows
+           newRow.originalAmount = value;
+           const cur = row.currency || 'ARS';
+           let finalARS = value;
+           if (cur === 'USD' && dolarBlueRate) finalARS = Number(value) * dolarBlueRate;
+           else if (cur === 'EUR' && euroRate) finalARS = Number(value) * euroRate;
+           newRow.amount = finalARS;
+        }
+        return newRow;
+      }
+      return row;
+    }));
   };
 
   const deleteRow = (id) => {
@@ -48,22 +70,19 @@ export default function DataGrid({ data, setData, selectedMonth, customCategorie
   const handleSaveModal = (e) => {
     e.preventDefault();
     
-    let finalAmount = formData.amount;
-    let finalDescription = formData.description;
+    let calculatedArs = formData.amount;
     
     if (formData.currency === 'USD' && dolarBlueRate) {
-      finalAmount = (Number(formData.amount) * dolarBlueRate).toFixed(2);
-      finalDescription = `${formData.description} (U$D ${formData.amount} x $${dolarBlueRate})`;
+      calculatedArs = (Number(formData.amount) * dolarBlueRate).toFixed(2);
     } else if (formData.currency === 'EUR' && euroRate) {
-      finalAmount = (Number(formData.amount) * euroRate).toFixed(2);
-      finalDescription = `${formData.description} (€ ${formData.amount} x $${euroRate.toFixed(2)})`;
+      calculatedArs = (Number(formData.amount) * euroRate).toFixed(2);
     }
 
     const newRow = {
       id: Date.now().toString(),
       ...formData,
-      amount: finalAmount,
-      description: finalDescription
+      originalAmount: formData.amount,
+      amount: calculatedArs
     };
     setData([...data, newRow]);
     setIsModalOpen(false);
@@ -165,12 +184,21 @@ export default function DataGrid({ data, setData, selectedMonth, customCategorie
                     </div>
                   </td>
                   <td data-label="Monto" style={{ padding: '12px' }}>
-                    <div style={{ display: 'flex', alignItems: 'center' }}>
-                      <span style={{ color: 'var(--text-secondary)', marginRight: '4px' }}>$</span>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '4px' }}>
+                      <select
+                        value={row.currency || 'ARS'}
+                        onChange={(e) => handleCellChange(row.id, 'currency', e.target.value)}
+                        className="select-input"
+                        style={{ padding: '2px', fontSize: '0.8rem', width: 'auto', background: 'var(--bg-panel)' }}
+                      >
+                        <option value="ARS">$ ARS</option>
+                        {dolarBlueRate && <option value="USD">U$D</option>}
+                        {euroRate && <option value="EUR">€ EUR</option>}
+                      </select>
                       <input
                         type="number"
-                        value={row.amount}
-                        onChange={(e) => handleCellChange(row.id, 'amount', e.target.value)}
+                        value={row.originalAmount || row.amount}
+                        onChange={(e) => handleCellChange(row.id, 'originalAmount', e.target.value)}
                         placeholder="0.00"
                         className="td-input text-bold"
                         style={{ width: '80px', color: 'var(--text-primary)' }}

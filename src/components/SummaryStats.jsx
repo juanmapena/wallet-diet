@@ -1,17 +1,24 @@
 import { motion } from 'framer-motion';
 import { DollarSign, TrendingDown, Wallet } from 'lucide-react';
 
-export default function SummaryStats({ data, monthlyIncome }) {
+export default function SummaryStats({ data, monthlyIncome, incomeCurrency = 'ARS', dolarBlueRate, euroRate }) {
+  const getConvertedIncome = () => {
+    if (incomeCurrency === 'USD' && dolarBlueRate) return Number(monthlyIncome) * dolarBlueRate;
+    if (incomeCurrency === 'EUR' && euroRate) return Number(monthlyIncome) * euroRate;
+    return Number(monthlyIncome) || 0;
+  };
+
+  const realIncome = getConvertedIncome();
   const totalExpenses = data.reduce((acc, row) => acc + (Number(row.amount) || 0), 0);
   const totalPaid = data.filter(r => r.status === 'paid').reduce((acc, row) => acc + (Number(row.amount) || 0), 0);
   const totalPending = totalExpenses - totalPaid;
   
-  // Saldo Disponible: Ingresos Mensuales - Todos los gastos registrados
-  const saldoActual = monthlyIncome - totalExpenses;
+  // Saldo Disponible: Ingresos Mensuales reales - Todos los gastos registrados
+  const saldoActual = realIncome - totalExpenses;
 
   const cards = [
     { 
-      title: 'Ingresos del Mes', 
+      title: `Ingresos (${incomeCurrency})`, 
       amount: monthlyIncome, 
       icon: <Wallet size={24} />, 
       color: 'var(--accent-green)', 
@@ -57,7 +64,7 @@ export default function SummaryStats({ data, monthlyIncome }) {
               {card.title}
             </p>
             <h2 style={{ margin: 0, fontSize: '2.25rem', letterSpacing: '-0.03em', fontFamily: 'var(--font-display)', color: card.color === 'var(--accent-red)' && card.title === 'Saldo Disponible' ? card.color : 'inherit' }}>
-              ${card.amount.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+              {card.title.includes('Ingresos') && incomeCurrency === 'USD' ? 'U$D ' : card.title.includes('Ingresos') && incomeCurrency === 'EUR' ? '€ ' : '$'}{card.amount.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
             </h2>
           </div>
         </motion.div>

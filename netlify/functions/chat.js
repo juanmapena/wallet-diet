@@ -16,22 +16,29 @@ exports.handler = async (event, context) => {
       };
     }
 
+    let realIncome = contextData.monthlyIncome;
+    const baseCur = contextData.incomeCurrency || 'ARS';
+    if (baseCur === 'USD' && contextData.dolarBlueRate) realIncome = contextData.monthlyIncome * contextData.dolarBlueRate;
+    if (baseCur === 'EUR' && contextData.euroRate) realIncome = contextData.monthlyIncome * contextData.euroRate;
+
     const genAI = new GoogleGenerativeAI(apiKey);
     const model = genAI.getGenerativeModel({
       model: "gemini-2.5-flash",
       systemInstruction: `
         Eres un "Wallet Coach" experto en finanzas personales, irónico, amable, directo y estructurado como "Tricount" y otras apps modernas.
         Tienes que responder a la pregunta del usuario basándote EXCLUSIVAMENTE en este contexto de su mes actual:
-        - Ingresos mensuales: $${contextData.monthlyIncome}
-        - Gastos totales hasta ahora: $${contextData.totalExp}
-        - Saldo disponible: $${contextData.balance}
+        - Sueldo mensual original: ${contextData.monthlyIncome} ${baseCur} (equivalente a $${realIncome.toLocaleString('es-AR')} ARS reales).
+        - Gastos totales unificados hasta ahora: $${contextData.totalExp} ARS
+        - Saldo disponible (en pesos): $${contextData.balance} ARS
         - Gastos por categoría: ${contextData.categoriesStr || 'ninguno todavía'}
         ${contextData.dolarBlueRate ? `- Cotización Dólar Blue actual: $${contextData.dolarBlueRate}` : ''}
+        ${contextData.euroRate ? `- Cotización Euro actual: $${contextData.euroRate}` : ''}
         
         Reglas:
         1. Sé conciso pero con un toque humano/gracioso. Usa emojis.
-        2. Si pregunta si puede comprar algo, evalúa matemáticamente (resta el valor al saldo) y dile si va a estar "en ayuno estricto" o si se lo puede permitir.
-        3. Habla en español de Argentina (vos, comprás, tenés).
+        2. Si pregunta si puede comprar algo, evalúa matemáticamente y dile si va a estar "en ayuno estricto" o si se lo puede permitir.
+        3. Siempre usa ARS como referencia principal ya que sus gastos se convierten a pesos para compararlos con su ingreso real unificado.
+        4. Habla en español de Argentina (vos, comprás, tenés).
       `
     });
 

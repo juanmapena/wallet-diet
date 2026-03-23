@@ -23,6 +23,7 @@ function App() {
   // Data states
   const [data, setData] = useState([]);
   const [monthlyIncome, setMonthlyIncome] = useState(0);
+  const [incomeCurrency, setIncomeCurrency] = useState('ARS');
   const [customCategories, setCustomCategories] = useState([]);
   const [sharedGroups, setSharedGroups] = useState([]);
   const [dolarBlueRate, setDolarBlueRate] = useState(null);
@@ -80,6 +81,10 @@ function App() {
       } else {
         setMonthlyIncome(0);
       }
+      
+      const savedIncomeCur = localStorage.getItem(`gravity_income_currency_${currentUser}_${selectedMonth}`);
+      if (savedIncomeCur) setIncomeCurrency(savedIncomeCur);
+      else setIncomeCurrency('ARS');
 
       const savedCategories = localStorage.getItem(`gravity_finance_categories_${currentUser}`);
       if (savedCategories) {
@@ -110,8 +115,9 @@ function App() {
     if (currentUser && selectedMonth) {
       localStorage.setItem(`gravity_finance_data_${currentUser}_${selectedMonth}`, JSON.stringify(data));
       localStorage.setItem(`gravity_finance_income_${currentUser}_${selectedMonth}`, monthlyIncome.toString());
+      localStorage.setItem(`gravity_income_currency_${currentUser}_${selectedMonth}`, incomeCurrency);
     }
-  }, [data, monthlyIncome, currentUser, selectedMonth]);
+  }, [data, monthlyIncome, incomeCurrency, currentUser, selectedMonth]);
 
   useEffect(() => {
     if (currentUser) {
@@ -291,6 +297,11 @@ function App() {
               <div style={{ marginTop: '0.75rem' }}>
                 {isEditingIncome ? (
                   <form onSubmit={handleIncomeSubmit} style={{ display: 'flex', gap: '10px' }}>
+                    <select className="input-glass" value={incomeCurrency} onChange={e => setIncomeCurrency(e.target.value)} style={{ padding: '12px', width: '90px', borderRadius: '12px' }}>
+                      <option value="ARS">ARS</option>
+                      {dolarBlueRate && <option value="USD">USD</option>}
+                      {euroRate && <option value="EUR">EUR</option>}
+                    </select>
                     <input 
                       type="number" 
                       className="input-glass" 
@@ -305,7 +316,7 @@ function App() {
                 ) : (
                   <div style={{ display: 'flex', alignItems: 'center', gap: '15px' }}>
                     <h2 style={{ margin: 0, fontSize: 'clamp(1.75rem, 5vw, 2rem)', color: 'var(--accent-green)', letterSpacing: '-0.03em' }}>
-                      ${monthlyIncome.toLocaleString()}
+                      {incomeCurrency === 'USD' ? 'U$D' : incomeCurrency === 'EUR' ? '€' : '$'} {monthlyIncome.toLocaleString()}
                     </h2>
                     <button onClick={() => { setTempIncome(monthlyIncome); setIsEditingIncome(true); }} className="btn" style={{ padding: '8px', borderRadius: '50%' }}>
                       <Edit3 size={16} />
@@ -337,7 +348,7 @@ function App() {
           </div>
 
           <div style={{ display: 'flex', flexDirection: 'column', gap: '2rem' }}>
-            <SummaryStats data={data} monthlyIncome={monthlyIncome} />
+            <SummaryStats data={data} monthlyIncome={monthlyIncome} incomeCurrency={incomeCurrency} dolarBlueRate={dolarBlueRate} euroRate={euroRate} />
             <DataGrid 
               data={data} 
               setData={setData} 
@@ -375,7 +386,9 @@ function App() {
           <WalletCoach 
             data={data}
             monthlyIncome={monthlyIncome}
+            incomeCurrency={incomeCurrency}
             dolarBlueRate={dolarBlueRate}
+            euroRate={euroRate}
           />
         )}
       </main>
