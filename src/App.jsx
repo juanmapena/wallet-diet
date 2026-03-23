@@ -5,7 +5,6 @@ import DataGrid from './components/DataGrid';
 import SummaryStats from './components/SummaryStats';
 import SharedExpenses from './components/SharedExpenses';
 import CategoryChart from './components/CategoryChart';
-import WalletCoach from './components/WalletCoach';
 import AnimatedBackground from './components/AnimatedBackground';
 import './App.css';
 
@@ -381,16 +380,6 @@ function App() {
             euroRate={euroRate}
           />
         )}
-
-        {activeTab === 'coach' && (
-          <WalletCoach 
-            data={data}
-            monthlyIncome={monthlyIncome}
-            incomeCurrency={incomeCurrency}
-            dolarBlueRate={dolarBlueRate}
-            euroRate={euroRate}
-          />
-        )}
       </main>
 
       {currentUser && (
@@ -415,13 +404,6 @@ function App() {
           >
             <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M3 3v18h18"/><path d="M18 17V9"/><path d="M13 17V5"/><path d="M8 17v-3"/></svg>
             <span>Estadísticas</span>
-          </button>
-          <button 
-            className={`nav-btn ${activeTab === 'coach' ? 'active' : ''}`}
-            onClick={() => setActiveTab('coach')}
-          >
-            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path><path d="M13 8H7"></path><path d="M17 12H7"></path></svg>
-            <span>Coach</span>
           </button>
         </nav>
       )}
