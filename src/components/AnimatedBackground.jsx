@@ -16,18 +16,18 @@ export default function AnimatedBackground() {
     <div className="stripe-bg">
       <motion.div 
         className="stripe-blob blob-1"
-        animate={{ x: [0, 100, -50, 0], y: [0, -100, 50, 0], scale: [1, 1.2, 0.9, 1] }}
-        transition={{ duration: 15, repeat: Infinity, ease: "easeInOut" }}
+        animate={{ x: [0, 100, -50, 0], y: [0, -100, 50, 0] }}
+        transition={{ duration: 25, repeat: Infinity, ease: "linear" }}
       />
       <motion.div 
         className="stripe-blob blob-2"
-        animate={{ x: [0, -150, 50, 0], y: [0, 100, -100, 0], scale: [1, 1.3, 0.8, 1] }}
-        transition={{ duration: 18, repeat: Infinity, ease: "easeInOut", delay: 1 }}
+        animate={{ x: [0, -150, 50, 0], y: [0, 100, -100, 0] }}
+        transition={{ duration: 28, repeat: Infinity, ease: "linear", delay: 1 }}
       />
       <motion.div 
         className="stripe-blob blob-3"
-        animate={{ x: [0, 80, -80, 0], y: [0, 80, -50, 0], scale: [1, 0.9, 1.1, 1] }}
-        transition={{ duration: 20, repeat: Infinity, ease: "easeInOut", delay: 2 }}
+        animate={{ x: [0, 80, -80, 0], y: [0, 80, -50, 0] }}
+        transition={{ duration: 30, repeat: Infinity, ease: "linear", delay: 2 }}
       />
 
       {/* Floating Fun Emojis */}
