@@ -61,11 +61,13 @@ export default function WalletCoach({ data, monthlyIncome, dolarBlueRate }) {
 
     try {
       // LLAMADA AL BACKEND DE NETLIFY en vez de la API de Google
+      const payloadMessages = newMessages.filter(m => m.id !== 'welcome');
+
       const response = await fetch('/api/chat', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ 
-          messages: newMessages,
+          messages: payloadMessages,
           contextData: contextData
         })
       });

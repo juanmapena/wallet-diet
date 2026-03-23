@@ -59,7 +59,7 @@ exports.handler = async (event, context) => {
     return {
       statusCode: 500,
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ error: "Error en el servidor de IA. Intenta en un rato." }),
+      body: JSON.stringify({ error: `Error del servidor: ${error.message || 'Intenta en un rato'}` }),
     };
   }
 };
